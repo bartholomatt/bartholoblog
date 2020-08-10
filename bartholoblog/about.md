@@ -76,7 +76,7 @@ This is an example of the configuration file.
 {{< highlight toml >}}
 baseURL = "https://cto.me.uk/"
 languageCode = "en-gb"
-title = "Hugo Theme - Prav"
+title = "Bartholoblog"
 theme = "prav"
 
 pygmentsCodeFences = "true"
@@ -87,9 +87,9 @@ pygmentsStyle = "perldoc"
 
 # Below settings are used throughout the theme. Please update
 [params]
-  title = "Hugo Theme - Prav"
+  title = "Bartholoblog"
   tagline = "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
-  author = "Pravin Paratey"
+  author = "Matt Bartholomew"
 
 [social]
   email = "mailto:pravin@paratey.com"

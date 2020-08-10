@@ -4,8 +4,8 @@
         <link>/</link>
         <language>en-us</language>
         <author>Matt Bartholomew</author>
-        <rights>(c) 2019</rights>
-        <updated>2019-12-31 00:00:00 &#43;0000 UTC</updated>
+        <rights>(c) 2020</rights>
+        <updated>2020-08-10 00:00:00 &#43;0000 UTC</updated>
 
         
         
@@ -16,7 +16,7 @@
             <item>
             <title>Posts</title>
             <link>/post/</link>
-            <pubDate>Thu, 23 Jul 2015 21:13:14 CDT</pubDate>
+            <pubDate>Mon, 01 Jan 0001 00:00:00 UTC</pubDate>
             <author>Matt Bartholomew</author>
             <guid>/post/</guid>
             <description></description>
