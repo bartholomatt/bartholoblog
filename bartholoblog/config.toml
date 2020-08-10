@@ -1,6 +1,6 @@
 baseURL = "https://example.com/"
 languageCode = "en-gb"
-title = "Hugo Theme - Prav"
+title = "Bartholoblog"
 theme = "hugo-theme-prav"
 
 pygmentsCodeFences = "true"
