@@ -4,21 +4,21 @@
         <link>/</link>
         <language>en-us</language>
         <author>Matt Bartholomew</author>
-        <rights>(c) 1</rights>
-        <updated>0001-01-01 00:00:00 &#43;0000 UTC</updated>
+        <rights>(c) 2020</rights>
+        <updated>2020-08-11 00:00:00 &#43;0000 UTC</updated>
 
-        
-        
         
         
             <item>
             <title>Posts</title>
             <link>/post/</link>
-            <pubDate>Mon, 01 Jan 0001 00:00:00 UTC</pubDate>
+            <pubDate>Tue, 11 Aug 2020 00:00:00 UTC</pubDate>
             <author>Matt Bartholomew</author>
             <guid>/post/</guid>
             <description></description>
             </item>
+        
+        
         
         
     </channel>
