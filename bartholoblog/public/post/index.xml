@@ -21,14 +21,5 @@
 My goal in this project is to 1) Recreate the original visualization using census data. 2) Build a function to generate similar maps for any region of the country.</description>
     </item>
     
-    <item>
-      <title>TestPost1</title>
-      <link>/post/testpost1/</link>
-      <pubDate>Tue, 11 Aug 2020 00:00:00 +0000</pubDate>
-      
-      <guid>/post/testpost1/</guid>
-      <description></description>
-    </item>
-    
   </channel>
 </rss>
