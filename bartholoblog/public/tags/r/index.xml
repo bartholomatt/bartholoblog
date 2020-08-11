@@ -21,5 +21,15 @@
 My goal in this project is to 1) Recreate the original visualization using census data. 2) Build a function to generate similar maps for any region of the country.</description>
     </item>
     
+    <item>
+      <title>Making a Better Map Part 1: Getting Data with TidyCensus</title>
+      <link>/post/census_maps_part1/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/post/census_maps_part1/</guid>
+      <description>Recreating a VisualizationOne of the many perks of having Data Science skills is being able to interact with statistics and graphs that you see in the news in a much deeper way. This weekend’s New York Times included  an interesting graphic on housing density and overcrowding in the Bay Area:
+My goal in this project is to 1) Recreate the original visualization using census data. 2) Build a function to generate similar maps for any region of the country.</description>
+    </item>
+    
   </channel>
 </rss>
