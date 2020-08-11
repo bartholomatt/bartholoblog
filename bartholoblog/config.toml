@@ -2,6 +2,7 @@ baseURL = "https://bartholoblog.net/"
 languageCode = "en-gb"
 title = "Bartholoblog"
 theme = "hugo-theme-prav"
+ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
 
 pygmentsCodeFences = "true"
 pygmentsStyle = "perldoc"
