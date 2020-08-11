@@ -1,11 +1,9 @@
 ---
-author: "Pravin Paratey"
-title: "About Theme Prav"
-date: "2019-12-31"
+author: "Matt Bartholomew"
+title: "About Me"
+date: "2020-08-08"
 description: "A little more about this theme"
 tags: [
-    "theme",
-    "prav",
 ]
 ---
 
