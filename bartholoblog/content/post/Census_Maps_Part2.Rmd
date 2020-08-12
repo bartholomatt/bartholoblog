@@ -72,7 +72,7 @@ bay_area_housing = bay_area$fill
 
 ## Continuing Where we Left Off
 
-In <a href = '/posts/Census_Maps_Part1'> Part One</a>o f this series we worked on getting data using the TidyCensus package to recreate the map below from a recent New York Times Story. Now we're going to actually do the mapping bit.
+In <a href = '/posts/Census_Maps_Part1'> Part One</a>of this series we worked on getting data using the TidyCensus package to recreate the map below from a recent New York Times Story. Now we're going to actually do the mapping bit.
 <img src = 'https://pbs.twimg.com/media/EeWdu85XsAE2NGZ?format=jpg&name=900x900'> 
 
 ## It Floats...kind of 
@@ -171,7 +171,7 @@ my_map +
 
 ```
 
-Wow...lets just take minute to recall our journey here. 
+Wow...lets just take minute to recall our journey here. Nicely done! 
 
 <img src = '/img/buildMap1.gif'>
 
@@ -179,4 +179,116 @@ Wow...lets just take minute to recall our journey here.
 
 ## We Hunger for More Maps 
 
-Ok! We've recreated the original map. Remember though, one of the goals of this project was to be able to make a tool that we can use to create similar visualizations for ANYWHERE in the US.
+Ok! We've recreated the original map. Remember though, one of the goals of this project was to be able to make a tool that we can use to create similar visualizations for ANYWHERE in the US. 
+
+Well...if we're gonna be running the same code several times over, this sounds like a job for a function. This next part is gonna involve a lot of code we've already gone over but the basic idea is to make two functions: one to pull the data we need to make the map and one to actually render it. First the data puller: This is going to let us grab our underlying info from the TidyCencus, Tigris and maps package.
+```{r puller}
+pull_data = function(my_state, my_county){
+  
+  acs = load_variables(2018, 'acs5', cache = TRUE) 
+  
+  concepts = acs %>% 
+    filter(concept == 'TENURE BY OCCUPANTS PER ROOM')
+  
+  concepts_string = concepts %>% 
+    select(1) %>% 
+    pull() # this creates a character vector of just the concepts we want
+  
+  
+  raw =  get_acs(geography = 'tract', variables = concepts_string, year = 2018, state = my_state, 
+                 county = my_county,geometry = TRUE, cache = TRUE)
+  
+  fixed_data = concepts %>% 
+    select(name, label) %>% 
+    right_join(raw, by = c('name' = 'variable')) %>% 
+    select(2,3,5,7) %>% 
+    spread(key = label, value = estimate, -4)
+  
+  names(fixed_data) = make.names(names(fixed_data))
+  
+  fill_data = fixed_data %>% 
+    mutate(
+      total_under_1 = Estimate..Total..Owner.occupied..0.50.or.less.occupants.per.room + Estimate..Total..Owner.occupied..0.51.to.1.00.occupants.per.room + Estimate..Total..Renter.occupied..0.50.or.less.occupants.per.room + Estimate..Total..Renter.occupied..0.51.to.1.00.occupants.per.room,
+      total_over_1 = Estimate..Total..Owner.occupied..1.01.to.1.50.occupants.per.room + Estimate..Total..Owner.occupied..1.51.to.2.00.occupants.per.room + Estimate..Total..Owner.occupied..2.01.or.more.occupants.per.room + Estimate..Total..Renter.occupied..1.01.to.1.50.occupants.per.room + Estimate..Total..Renter.occupied..1.51.to.2.00.occupants.per.room + Estimate..Total..Renter.occupied..2.01.or.more.occupants.per.room
+    ) %>% 
+    select(GEOID,geometry ,total_under_1, total_over_1, Estimate..Total) %>% 
+    mutate(ratio_over_1 = total_over_1/ Estimate..Total)
+
+  roads_data = primary_secondary_roads(my_state) %>% 
+    filter(RTTYP %in% c('U','S','I'))
+  
+  counties_data = counties(cb = TRUE)
+  water_data = area_water(my_state,my_county)
+  
+  cities_data = us.cities %>% 
+    filter(country.etc %in% my_state)  %>% 
+    mutate(fixed_name = str_replace(name,country.etc,'')) # this will drop the state name from the name column
+  
+  return(list(fill = fill_data, roads = roads_data, counties = counties_data, water =  water_data, cities = cities_data))
+}
+
+```
+
+Second is the actual mapper. I've got two extra parameters in here to make this more flexible for various geographies. One allows you to specify a cutoff for which cities will be included on the map. Another lets you specify which corner of the map to stick the legend. 
+
+```{r mapper}
+mapper = function(input_data, city_size_floor = 100000000, legend_position = 'bottom left'){ #accepts list object from pull_data function
+  map_frame = input_data$fill
+  limits = st_bbox(map_frame$geometry)
+  roads = input_data$roads
+  county = input_data$counties
+  water = input_data$water
+  cities = input_data$cities %>% 
+    filter(pop > city_size_floor & long > as.numeric(limits$xmin) & long < as.numeric(limits$xmax) &
+             lat>(as.numeric(limits$ymin) & lat < as.numeric(limits$ymax))) 
+  
+  legend_placer = function(position = 'bottom left'){
+    if(position == 'bottom left'){
+      ret = (list(c(0,0),c(0.02,0.04)))
+    }else if(position == 'top left'){
+      ret =(list(c(0,1),c(0.02,0.96)))
+    }else if (position == 'bottom right'){
+      ret=(list(c(1,0),c(0.98,0.04)))
+    }else if(position == 'top right'){
+      ret=(list(c(1,1),c(0.98,0.96)))
+    }else(stop('invalid input: must supply one of: bottom left, bottom right, top left, top right'))
+    return(theme(legend.justification = ret[[1]], legend.position = ret[[2]]))
+  }
+  
+  ggplot() +
+    theme_void()  + #whiteout
+    legend_placer(legend_position) +
+    labs(fill = 'Share of housing\nunits with more\nthan one person\nper room')+ #label legend
+    geom_sf(data = county, alpha = 1, fill = '#e6e6e6', color = NA,aes(geometry = geometry)) + #grey landmass
+    geom_sf(data = map_frame, alpha = 1,color = NA, aes(geometry = geometry, fill = ratio_over_1)) + #our census map
+    scale_fill_gradient(low = '#ffff99', high = '#b10026', na.value = '#ffffcc' ) + # custom fill palette
+    geom_sf(data = water, fill = '#cce6ff',color = NA, aes(geometry = geometry)) + #add water
+    theme(panel.background = element_rect(fill = '#cce6ff', color = NA)) + #blue background to mesh with water
+    geom_sf(data = roads, color = 'white', aes(geometry = geometry)) + #add roads
+    geom_text(color = 'black',data = cities,check_overlap = TRUE ,aes(x = long, y = lat, label = fixed_name)) + #add city names
+    coord_sf(xlim = c(as.numeric(limits$xmin),as.numeric(limits$xmax)), ylim = c(as.numeric(limits$ymin),as.numeric(limits$ymax))) + #set framing(very important)
+    NULL
+}
+
+
+
+```
+
+So lets give it a whirl: let's start with New York City: 
+
+```{r nyc, message = FALSE, results = FALSE}
+
+nyc = pull_data('NY',c('Bronx','New York','Queens','Kings'))
+mapper(nyc, legend_position = 'top left')
+
+```
+
+How about my hometown? 
+
+```{r atx, message = FALSE, results = FALSE}
+
+atx = pull_data('TX',c('Travis','Williamson','Hays','Caldwell','Bastrop'))
+mapper(atx, 40000, legend_position = 'top left')
+```
+
+I think we've done it. If you want to see maps for your own city or region, feel free to copy my functions and run them locally. If you find a way to improve on them <a href ='mailto:bartholomatt@gmail.com'> let me know!</a>

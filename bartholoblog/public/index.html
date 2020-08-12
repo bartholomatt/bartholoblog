@@ -129,7 +129,7 @@
 
 <div id="continuing-where-we-left-off" class="section level2">
 <h2>Continuing Where we Left Off</h2>
-<p>In <a href = '/posts/Census_Maps_Part1'> Part One</a>o f this series we worked on getting data using the TidyCensus package to recreate the map below from a recent New York Times Story. Now we’re going to actually do the mapping bit.
+<p>In <a href = '/posts/Census_Maps_Part1'> Part One</a>of this series we worked on getting data using the TidyCensus package to recreate the map below from a recent New York Times Story. Now we’re going to actually do the mapping bit.
 <img src = 'https://pbs.twimg.com/media/EeWdu85XsAE2NGZ?format=jpg&name=900x900'></p>
 </div>
 <div id="it-floatskind-of" class="section level2">
@@ -201,12 +201,103 @@ cities_data = us.cities %&gt;%
 my_map + 
   geom_text(color = &#39;black&#39;,data = cities_data ,check_overlap = TRUE ,aes(x = long, y = lat, label = fixed_name)) </code></pre>
 <p><img src="/post/Census_Maps_Part2_files/figure-html/cities-1.png" width="672" /></p>
-<p>Wow…lets just take minute to recall our journey here.</p>
+<p>Wow…lets just take minute to recall our journey here. Nicely done!</p>
 <p><img src = '/img/buildMap1.gif'></p>
 </div>
 <div id="we-hunger-for-more-maps" class="section level2">
 <h2>We Hunger for More Maps</h2>
 <p>Ok! We’ve recreated the original map. Remember though, one of the goals of this project was to be able to make a tool that we can use to create similar visualizations for ANYWHERE in the US.</p>
+<p>Well…if we’re gonna be running the same code several times over, this sounds like a job for a function. This next part is gonna involve a lot of code we’ve already gone over but the basic idea is to make two functions: one to pull the data we need to make the map and one to actually render it. First the data puller: This is going to let us grab our underlying info from the TidyCencus, Tigris and maps package.</p>
+<pre class="r"><code>pull_data = function(my_state, my_county){
+  
+  acs = load_variables(2018, &#39;acs5&#39;, cache = TRUE) 
+  
+  concepts = acs %&gt;% 
+    filter(concept == &#39;TENURE BY OCCUPANTS PER ROOM&#39;)
+  
+  concepts_string = concepts %&gt;% 
+    select(1) %&gt;% 
+    pull() # this creates a character vector of just the concepts we want
+  
+  
+  raw =  get_acs(geography = &#39;tract&#39;, variables = concepts_string, year = 2018, state = my_state, 
+                 county = my_county,geometry = TRUE, cache = TRUE)
+  
+  fixed_data = concepts %&gt;% 
+    select(name, label) %&gt;% 
+    right_join(raw, by = c(&#39;name&#39; = &#39;variable&#39;)) %&gt;% 
+    select(2,3,5,7) %&gt;% 
+    spread(key = label, value = estimate, -4)
+  
+  names(fixed_data) = make.names(names(fixed_data))
+  
+  fill_data = fixed_data %&gt;% 
+    mutate(
+      total_under_1 = Estimate..Total..Owner.occupied..0.50.or.less.occupants.per.room + Estimate..Total..Owner.occupied..0.51.to.1.00.occupants.per.room + Estimate..Total..Renter.occupied..0.50.or.less.occupants.per.room + Estimate..Total..Renter.occupied..0.51.to.1.00.occupants.per.room,
+      total_over_1 = Estimate..Total..Owner.occupied..1.01.to.1.50.occupants.per.room + Estimate..Total..Owner.occupied..1.51.to.2.00.occupants.per.room + Estimate..Total..Owner.occupied..2.01.or.more.occupants.per.room + Estimate..Total..Renter.occupied..1.01.to.1.50.occupants.per.room + Estimate..Total..Renter.occupied..1.51.to.2.00.occupants.per.room + Estimate..Total..Renter.occupied..2.01.or.more.occupants.per.room
+    ) %&gt;% 
+    select(GEOID,geometry ,total_under_1, total_over_1, Estimate..Total) %&gt;% 
+    mutate(ratio_over_1 = total_over_1/ Estimate..Total)
+
+  roads_data = primary_secondary_roads(my_state) %&gt;% 
+    filter(RTTYP %in% c(&#39;U&#39;,&#39;S&#39;,&#39;I&#39;))
+  
+  counties_data = counties(cb = TRUE)
+  water_data = area_water(my_state,my_county)
+  
+  cities_data = us.cities %&gt;% 
+    filter(country.etc %in% my_state)  %&gt;% 
+    mutate(fixed_name = str_replace(name,country.etc,&#39;&#39;)) # this will drop the state name from the name column
+  
+  return(list(fill = fill_data, roads = roads_data, counties = counties_data, water =  water_data, cities = cities_data))
+}</code></pre>
+<p>Second is the actual mapper. I’ve got two extra parameters in here to make this more flexible for various geographies. One allows you to specify a cutoff for which cities will be included on the map. Another lets you specify which corner of the map to stick the legend.</p>
+<pre class="r"><code>mapper = function(input_data, city_size_floor = 100000000, legend_position = &#39;bottom left&#39;){ #accepts list object from pull_data function
+  map_frame = input_data$fill
+  limits = st_bbox(map_frame$geometry)
+  roads = input_data$roads
+  county = input_data$counties
+  water = input_data$water
+  cities = input_data$cities %&gt;% 
+    filter(pop &gt; city_size_floor &amp; long &gt; as.numeric(limits$xmin) &amp; long &lt; as.numeric(limits$xmax) &amp;
+             lat&gt;(as.numeric(limits$ymin) &amp; lat &lt; as.numeric(limits$ymax))) 
+  
+  legend_placer = function(position = &#39;bottom left&#39;){
+    if(position == &#39;bottom left&#39;){
+      ret = (list(c(0,0),c(0.02,0.04)))
+    }else if(position == &#39;top left&#39;){
+      ret =(list(c(0,1),c(0.02,0.96)))
+    }else if (position == &#39;bottom right&#39;){
+      ret=(list(c(1,0),c(0.98,0.04)))
+    }else if(position == &#39;top right&#39;){
+      ret=(list(c(1,1),c(0.98,0.96)))
+    }else(stop(&#39;invalid input: must supply one of: bottom left, bottom right, top left, top right&#39;))
+    return(theme(legend.justification = ret[[1]], legend.position = ret[[2]]))
+  }
+  
+  ggplot() +
+    theme_void()  + #whiteout
+    legend_placer(legend_position) +
+    labs(fill = &#39;Share of housing\nunits with more\nthan one person\nper room&#39;)+ #label legend
+    geom_sf(data = county, alpha = 1, fill = &#39;#e6e6e6&#39;, color = NA,aes(geometry = geometry)) + #grey landmass
+    geom_sf(data = map_frame, alpha = 1,color = NA, aes(geometry = geometry, fill = ratio_over_1)) + #our census map
+    scale_fill_gradient(low = &#39;#ffff99&#39;, high = &#39;#b10026&#39;, na.value = &#39;#ffffcc&#39; ) + # custom fill palette
+    geom_sf(data = water, fill = &#39;#cce6ff&#39;,color = NA, aes(geometry = geometry)) + #add water
+    theme(panel.background = element_rect(fill = &#39;#cce6ff&#39;, color = NA)) + #blue background to mesh with water
+    geom_sf(data = roads, color = &#39;white&#39;, aes(geometry = geometry)) + #add roads
+    geom_text(color = &#39;black&#39;,data = cities,check_overlap = TRUE ,aes(x = long, y = lat, label = fixed_name)) + #add city names
+    coord_sf(xlim = c(as.numeric(limits$xmin),as.numeric(limits$xmax)), ylim = c(as.numeric(limits$ymin),as.numeric(limits$ymax))) + #set framing(very important)
+    NULL
+}</code></pre>
+<p>So lets give it a whirl: let’s start with New York City:</p>
+<pre class="r"><code>nyc = pull_data(&#39;NY&#39;,c(&#39;Bronx&#39;,&#39;New York&#39;,&#39;Queens&#39;,&#39;Kings&#39;))
+mapper(nyc, legend_position = &#39;top left&#39;)</code></pre>
+<p><img src="/post/Census_Maps_Part2_files/figure-html/nyc-1.png" width="672" /></p>
+<p>How about my hometown?</p>
+<pre class="r"><code>atx = pull_data(&#39;TX&#39;,c(&#39;Travis&#39;,&#39;Williamson&#39;,&#39;Hays&#39;,&#39;Caldwell&#39;,&#39;Bastrop&#39;))
+mapper(atx, 40000, legend_position = &#39;top left&#39;)</code></pre>
+<p><img src="/post/Census_Maps_Part2_files/figure-html/atx-1.png" width="672" /></p>
+<p>I think we’ve done it. If you want to see maps for your own city or region, feel free to copy my functions and run them locally. If you find a way to improve on them <a href ='mailto:bartholomatt@gmail.com'> let me know!</a></p>
 </div>
 
 </article>
@@ -304,7 +395,7 @@ head(fill_data)</code></pre>
 ## 5 0600~ (((-122.2694 37.84811, -~          1575           47            1622
 ## 6 0600~ (((-122.2681 37.84414, -~           653            4             657
 ## # ... with 1 more variable: ratio_over_1 &lt;dbl&gt;</code></pre>
-<p>Now we’ve got a dataframe with one row for each census tract that contains a shapefile for the contours of the tract, plus a calculation of the percentage of housing units that have more than one occupant per room. We’ll cover making the map using ggplot in part 2.</p>
+<p>Now we’ve got a dataframe with one row for each census tract that contains a shapefile for the contours of the tract, plus a calculation of the percentage of housing units that have more than one occupant per room. We’ll cover making the map using ggplot in <a href = '/posts/Census_Maps_Part1'>Part Two</a>.</p>
 </div>
 
 </article>
