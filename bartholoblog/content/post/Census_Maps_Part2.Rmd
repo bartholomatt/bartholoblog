@@ -72,7 +72,7 @@ bay_area_housing = bay_area$fill
 
 ## Continuing Where we Left Off
 
-In <a href = '/posts/Census_Maps_Part1'> Part One</a>of this series we worked on getting data using the TidyCensus package to recreate the map below from a recent New York Times Story. Now we're going to actually do the mapping bit.
+In <a href = '/posts/Census_Maps_Part1'> Part One</a> of this series we worked on getting data using the TidyCensus package to recreate the map below from a recent New York Times Story. Now we're going to actually do the mapping bit.
 <img src = 'https://pbs.twimg.com/media/EeWdu85XsAE2NGZ?format=jpg&name=900x900'> 
 
 ## It Floats...kind of 
