@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Posts on Bartholoblog</title>
-    <link>/post/</link>
-    <description>Recent content in Posts on Bartholoblog</description>
+    <title>Tigris on Bartholoblog</title>
+    <link>/tags/tigris/</link>
+    <description>Recent content in Tigris on Bartholoblog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-gb</language>
     <lastBuildDate>Wed, 12 Aug 2020 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="/tags/tigris/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
@@ -18,16 +18,6 @@
       
       <guid>/post/census_maps_part2/</guid>
       <description>Continuing Where we Left OffIn Part Oneo f this series we worked on getting data using the TidyCensus package to recreate the map below from a recent New York Times Story. Now we’re going to actually do the mapping bit.It Floats…kind ofSo this should be pretty straightforward: we’ve got a dataframe with shapefiles called bay_area_housing. It’s got one column with a shapefile of each census tract in the bay area and another with a ratio of dwellings where more than one person resides per room.</description>
-    </item>
-    
-    <item>
-      <title>Making a Better Map Part 1: Getting Data with TidyCensus</title>
-      <link>/post/census_maps_part1/</link>
-      <pubDate>Tue, 11 Aug 2020 00:00:00 +0000</pubDate>
-      
-      <guid>/post/census_maps_part1/</guid>
-      <description>Recreating a VisualizationOne of the many perks of having Data Science skills is being able to interact with statistics and graphs that you see in the news in a much deeper way. This weekend’s New York Times included  an interesting graphic on housing density and overcrowding in the Bay Area:
-My goal in this project is to 1) Recreate the original visualization using census data. 2) Build a function to generate similar maps for any region of the country.</description>
     </item>
     
   </channel>

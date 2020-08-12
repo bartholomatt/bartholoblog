@@ -4,10 +4,7 @@
     <meta name="theme-color" content="#000" />
     <title>
         
-             
-                Bartholoblog 
-             
-            &middot; Under Construction
+            Making a Better Map Part 2: ggplot and Tigris &middot; Bartholoblog Bartholoblog
         
     </title>
 
@@ -31,6 +28,8 @@
     <meta name="description" content="Under Construction">
     
 
+    
+    <meta name="keywords" content="R,Tigris,ggplot">
     
     <meta name="author" content="Matt Bartholomew"></head>
 <body>
@@ -101,9 +100,8 @@
 </div>
 <div class="pure-g">
 
-<div id="content" class="pure-u-1 pure-u-md-3-4 pure-u-sm-1">
-    
 
+<div id="content" class="pure-u-1 pure-u-md-3-4 pure-u-sm-1">
     <div class="pad">
 <div class="date">
     <time pubdate="2020-08-12">August 12, 2020</time>
@@ -210,117 +208,7 @@ my_map +
 </div>
 
 </article>
-</div>
-    <div class="pad"></div>
 
-    
-
-    <div class="pad">
-<div class="date">
-    <time pubdate="2020-08-11">August 11, 2020</time>
-    <span class="author">by Matt Bartholomew</span>
-</div>
-
-<article>
-    <h1><a href="/post/census_maps_part1/">Making a Better Map Part 1: Getting Data with TidyCensus</a></h1>
-    <div class="tags">
-        
-        
-        <a href="/tags/r" class="pure-button">R</a>
-        
-        
-        <a href="/tags/tidycensus" class="pure-button">TidyCensus</a>
-        
-    </div>
-    
-
-
-<div id="recreating-a-visualization" class="section level2">
-<h2>Recreating a Visualization</h2>
-<p>One of the many perks of having Data Science skills is being able to interact with statistics and graphs that you see in the news in a much deeper way. This weekend’s New York Times <a href = 'https://www.nytimes.com/2020/08/01/business/economy/housing-overcrowding-coronavirus.html'> included </a> an interesting graphic on housing density and overcrowding in the Bay Area:</p>
-<p><img src = 'https://pbs.twimg.com/media/EeWdu85XsAE2NGZ?format=jpg&name=900x900'></p>
-<p>My goal in this project is to 1) Recreate the original visualization using census data. 2) Build a function to generate similar maps for any region of the country.</p>
-</div>
-<div id="setup" class="section level2">
-<h2>Setup</h2>
-<p>Fortunately the graphic cites its sources. I’m going to use <a href = 'https://github.com/walkerke/tidycensus'> tidycensus </a> package to grab the base data and the ggplot2 library for my visual output. Since I’m sure I’ll also be needing dplyr and som other common tools to boot, I’ll bring in the whole tidyverse package as well.</p>
-<pre class="r"><code>library(tidycensus)
-library(tidyverse)</code></pre>
-</div>
-<div id="getting-to-the-data" class="section level2">
-<h2>Getting to the data</h2>
-<p>The good news is that the tidycensus package makes it a snap to get recent census data without even having to write and load any csv files to your working directory. The bad news is that census data is extremely complex and detailed and we will have to do a bit of sleuthing to find the inputs we’ll need to recreate the graphic. For this part of the project I found Kyle Walker and Matt Herman’s tidycensus <a href = 'https://walker-data.com/tidycensus/index.html'>vignettes</a> to be of incredible help.</p>
-<p>You’ll want to have a census API key in order to access the data. It’s free and easy to <a href = 'http://api.census.gov/data/key_signup.html'> register</a> so no worries there. Tidycensus has a built in function for storing your key.</p>
-<pre class="r"><code>census_api_key(&quot;YOUR API KEY GOES HERE&quot;)</code></pre>
-<p>We’ll be using the 2018 American Community Suervey (ACS) data since that’s the most recent available. Let’s have a look at what data is available.</p>
-<pre class="r"><code>acs = load_variables(2018, &#39;acs5&#39;, cache = TRUE) 
-summary(acs)</code></pre>
-<pre><code>##      name              label             concept         
-##  Length:26996       Length:26996       Length:26996      
-##  Class :character   Class :character   Class :character  
-##  Mode  :character   Mode  :character   Mode  :character</code></pre>
-<p>That’s …. a lot of categories: nearly 27000 rows! After some extensive sleuthing and googling to get a better sense of census jargon I concluded that the TENURE BY OCCUPANTS PER ROOM category is what we want. The job now is to query that subset of categories for the geographic area we want to map. Since our goal is to recreate the New York Times map, I’m going to use a list of bay area counties. In our get_acs() call we’ll want to specify that we want tract level data with geometry shapefiles included since this is ultimately going to power our map.</p>
-<pre class="r"><code>my_state = &#39;CA&#39;
-my_county = c(&#39;San Francisco&#39;,&#39;San Mateo&#39;,&#39;Santa Cruz&#39;,&#39;Santa Clara&#39;,&#39;Alameda&#39;,&#39;Contra Costa&#39;)
-
-  
-  concepts = acs %&gt;% 
-    filter(concept == &#39;TENURE BY OCCUPANTS PER ROOM&#39;)
-  
-  concepts_string = concepts %&gt;% 
-    select(1) %&gt;% 
-    pull() # this creates a character vector of just the concepts we want
-  
-raw =  get_acs(geography = &#39;tract&#39;, variables = concepts_string, year = 2018, state = my_state, 
-              county = my_county,geometry = TRUE, cache = TRUE) </code></pre>
-</div>
-<div id="transforming-and-aggregating" class="section level2">
-<h2>Transforming and Aggregating</h2>
-<p>Now we have our raw data! It’s got some issues though: First there’s multiple rows for each Census tract that we will want to aggreage in order to make our map. Also the return from the census API includes our variable codes but does not contain friendly labels that our human brains can easily parse. I’ll consolidate every tract ID using the spread() function and then join our original list of concepts back in for easier reading. I’m also going to clean up the column names a bit using the make_names() function that is built into base R.</p>
-<pre class="r"><code>fixed_data = concepts %&gt;% 
-  select(name, label) %&gt;% 
-  right_join(raw, by = c(&#39;name&#39; = &#39;variable&#39;)) %&gt;% 
-  select(2,3,5,7) %&gt;% 
-  spread(key = label, value = estimate, -4)
-  
-names(fixed_data) = make.names(names(fixed_data))</code></pre>
-<p>That gives us a nicer dataframe to work with. The last step is to do some basic arithmetic with our columns to figure out the ratio of households with more than one occupant per room. I just used basic dplyr mutates for this, which is a little inelegant but gets the job done. You may find a better solution exists.</p>
-<pre class="r"><code>fill_data = fixed_data %&gt;% 
-  mutate(
-    total_under_1 = Estimate..Total..Owner.occupied..0.50.or.less.occupants.per.room + Estimate..Total..Owner.occupied..0.51.to.1.00.occupants.per.room +    Estimate..Total..Renter.occupied..0.50.or.less.occupants.per.room + Estimate..Total..Renter.occupied..0.51.to.1.00.occupants.per.room,
-    total_over_1 = Estimate..Total..Owner.occupied..1.01.to.1.50.occupants.per.room + Estimate..Total..Owner.occupied..1.51.to.2.00.occupants.per.room +    Estimate..Total..Owner.occupied..2.01.or.more.occupants.per.room + Estimate..Total..Renter.occupied..1.01.to.1.50.occupants.per.room + Estimate..Total..Renter.occupied..1.51.to.2.00.occupants.per.room + Estimate..Total..Renter.occupied..2.01.or.more.occupants.per.room
-    ) %&gt;% 
-select(GEOID,geometry ,total_under_1, total_over_1, Estimate..Total) %&gt;% 
-mutate(ratio_over_1 = total_over_1/ Estimate..Total)
-
-head(fill_data)</code></pre>
-<pre><code>## # A tibble: 6 x 6
-##   GEOID                  geometry total_under_1 total_over_1 Estimate..Total
-##   &lt;chr&gt;        &lt;MULTIPOLYGON [°]&gt;         &lt;dbl&gt;        &lt;dbl&gt;           &lt;dbl&gt;
-## 1 0600~ (((-122.2469 37.88544, -~          1285           12            1297
-## 2 0600~ (((-122.2574 37.8431, -1~           849            6             855
-## 3 0600~ (((-122.2642 37.84, -122~          2375           66            2441
-## 4 0600~ (((-122.2618 37.84179, -~          1718           32            1750
-## 5 0600~ (((-122.2694 37.84811, -~          1575           47            1622
-## 6 0600~ (((-122.2681 37.84414, -~           653            4             657
-## # ... with 1 more variable: ratio_over_1 &lt;dbl&gt;</code></pre>
-<p>Now we’ve got a dataframe with one row for each census tract that contains a shapefile for the contours of the tract, plus a calculation of the percentage of housing units that have more than one occupant per room. We’ll cover making the map using ggplot in part 2.</p>
-</div>
-
-</article>
-</div>
-    <div class="pad"></div>
-
-    
-
-    <div class="pagination">
-        
-        <span class="pagination-item older">Older</span>
-        
-
-        
-        <span class="pagination-item newer">Newer</span>
-        
     </div>
 </div>
 
