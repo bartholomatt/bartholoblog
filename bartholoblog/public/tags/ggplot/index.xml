@@ -13,10 +13,10 @@
     
     <item>
       <title>Making a Better Map Part 2: ggplot and Tigris</title>
-      <link>/post/census_maps_part2/</link>
+      <link>/posts/census_maps_part2/</link>
       <pubDate>Wed, 12 Aug 2020 00:00:00 +0000</pubDate>
       
-      <guid>/post/census_maps_part2/</guid>
+      <guid>/posts/census_maps_part2/</guid>
       <description>Continuing Where we Left OffIn Part One of this series we worked on getting data using the TidyCensus package to recreate the map below from a recent New York Times Story. Now we’re going to actually do the mapping bit.It Floats…kind ofSo this should be pretty straightforward: we’ve got a dataframe with shapefiles called bay_area_housing. It’s got one column with a shapefile of each census tract in the bay area and another with a ratio of dwellings where more than one person resides per room.</description>
     </item>
     

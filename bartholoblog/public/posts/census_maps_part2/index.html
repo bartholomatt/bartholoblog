@@ -1,11 +1,128 @@
----
-title: "Making a Better Map Part 2: ggplot and Tigris"
-author: "Matt Bartholomew"
-date: "2020-08-12"
-tags: ["R","Tigris","ggplot"]
-output: html_document
----
+<!DOCTYPE html>
+<html lang="en"><head>
+    <meta charset="utf-8">
+    <meta name="theme-color" content="#000" />
+    <title>
+        
+            Making a Better Map Part 2: ggplot and Tigris &middot; Bartholoblog Bartholoblog
+        
+    </title>
 
+    
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css"
+        integrity="sha384-nn4HPE8lTHyVtfCBi5yW9d20FjT8BJwUXyWZT9InLYax14RDjBj46LmSztkmNP9w" crossorigin="anonymous">
+    
+    
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/grids-responsive-min.css">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:wght@300&family=Merriweather:ital,wght@0,300;0,700;1,300&display=swap" rel="stylesheet">
+    <link rel="icon" href="/img/favicon.ico" type="image/x-icon">
+
+    <link rel="alternate" type="application/atom+xml" title="Atom Feed" href="/atom.xml" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="">
+    
+    
+    <meta name="description" content="Under Construction">
+    
+
+    
+    <meta name="keywords" content="R,Tigris,ggplot">
+    
+    <meta name="author" content="Matt Bartholomew"></head>
+<body>
+        <div class="container"><div id="navbar" class="pure-menu pure-menu-open pure-menu-horizontal pure-menu-scrollable">
+    <a href="/" class="pure-menu-heading">
+         
+            Bartholoblog 
+         
+    </a>
+    <ul class="pure-menu-list">
+        <li class="pure-menu-item">
+            <a href="/posts" class="pure-menu-link">
+                <i class="fa fa-archive"></i>
+                Articles
+            </a>
+        </li>
+        <li class="pure-menu-item">
+            <a href="/tags" class="pure-menu-link">
+                <i class="fas fa-comments"></i>
+                Categories
+            </a>
+        </li>
+        <li class="pure-menu-item">
+            <a href="/about" class="pure-menu-link">
+                <i class="fas fa-smile"></i>
+                About
+            </a>
+        </li>
+    </ul>
+    <ul class="pure-menu-list pull-right">
+        
+        <li class="pure-menu-item">
+            <a href="https://github.com/bartholomatt" title="Github" class="pure-menu-link">
+                <i class="fab fa-github"></i>
+                <span class="hide">Github</span>
+            </a>
+        </li>
+        
+        
+        <li class="pure-menu-item">
+            <a href="http://twitter.com/bartholomatt" title="@pravin" class="pure-menu-link">
+                <i class="fab fa-twitter-square"></i>
+                <span class="hide">Twitter</span>
+            </a>
+        </li>
+        
+        
+        <li class="pure-menu-item">
+            <a href="http://linkedin.com/in/bartholomatt" title="Linked In" class="pure-menu-link">
+                <i class="fab fa-linkedin"></i>
+                <span class="hide">LinkedIn</span>
+            </a>
+        </li>
+        
+        
+        
+        <li class="pure-menu-item">
+            <a href="/posts/index.xml" title="Atom Feed" class="pure-menu-link">
+                <i class="fas fa-rss-square"></i>
+                <span class="hide">RSS Feed</span>
+            </a>
+        </li>
+    </ul>
+</div>
+<div class="pure-u-1">
+    <div class="pad">
+    </div>
+</div>
+<div class="pure-g">
+
+
+<div id="content" class="pure-u-1 pure-u-md-3-4 pure-u-sm-1">
+    <div class="pad">
+<div class="date">
+    <time pubdate="2020-08-12">August 12, 2020</time>
+    <span class="author">by Matt Bartholomew</span>
+</div>
+
+<article>
+    <h1><a href="/posts/census_maps_part2/">Making a Better Map Part 2: ggplot and Tigris</a></h1>
+    <div class="tags">
+        
+        
+        <a href="/tags/r" class="pure-button">R</a>
+        
+        
+        <a href="/tags/tigris" class="pure-button">Tigris</a>
+        
+        
+        <a href="/tags/ggplot" class="pure-button">ggplot</a>
+        
+    </div>
+    
 
 
 <div id="continuing-where-we-left-off" class="section level2">
@@ -18,7 +135,7 @@ output: html_document
 <p>So this should be pretty straightforward: we’ve got a dataframe with shapefiles called bay_area_housing. It’s got one column with a shapefile of each census tract in the bay area and another with a ratio of dwellings where more than one person resides per room. Using the geom_sf() function we can make a basic map with just a couple lines of code.</p>
 <pre class="r"><code>ggplot(data = bay_area_housing) + 
   geom_sf(color = NA, aes(geometry = geometry, fill = ratio_over_1)) </code></pre>
-<p><img src="/post/Census_Maps_Part2_files/figure-html/mapOne-1.png" width="672" /></p>
+<p><img src="/posts/Census_Maps_Part2_files/figure-html/mapOne-1.png" width="672" /></p>
 <p>It’s not pretty. At all. And it’s nothing like the map we are trying to replicate. In no particular order, if we want to replicate the map from the NYT, we’re going to need:
 1) Roads <br>
 2) The landmass outside of our chosen area. <br>
@@ -51,7 +168,7 @@ water_data = area_water(my_state,my_county)</code></pre>
   NULL
 
 my_map</code></pre>
-<p><img src="/post/Census_Maps_Part2_files/figure-html/tigris_map-1.png" width="672" /></p>
+<p><img src="/posts/Census_Maps_Part2_files/figure-html/tigris_map-1.png" width="672" /></p>
 <p>Crap. We’ve got what’s probably a pretty decent map, but it’s for the whole state. This kind of makes sense actually, since some of our calls to Tigris only specify a state and not a county, and ggplot doesn’t know that we only care to frame the parts of the data that are included in our bay_area_housing layer.
 Luckily there is a way around this. Using the coord_sf() function we can set x and y limits based on our original dataframe. This is kind of tricky since shapefiles don’t behave the way a lot of other R objects do but we can extract them like so using the st_bbox() function contained in the sf library.</p>
 <pre class="r"><code>limits = st_bbox(bay_area_housing$geometry)</code></pre>
@@ -61,7 +178,7 @@ Luckily there is a way around this. Using the coord_sf() function we can set x a
            ylim = c(as.numeric(limits$ymin),as.numeric(limits$ymax)))
 
 my_map</code></pre>
-<p><img src="/post/Census_Maps_Part2_files/figure-html/with_coord-1.png" width="672" /></p>
+<p><img src="/posts/Census_Maps_Part2_files/figure-html/with_coord-1.png" width="672" /></p>
 </div>
 <div id="last-touches" class="section level2">
 <h2>Last Touches</h2>
@@ -72,7 +189,7 @@ my_map</code></pre>
   scale_fill_gradient(low = &#39;#ffff99&#39;, high = &#39;#b10026&#39;, na.value = &#39;#ffffcc&#39; )  # custom fill palette
 
 my_map</code></pre>
-<p><img src="/post/Census_Maps_Part2_files/figure-html/fills-1.png" width="672" /></p>
+<p><img src="/posts/Census_Maps_Part2_files/figure-html/fills-1.png" width="672" /></p>
 <p>Very nice. All that’s left to do is add our cities and we’ll be all set. I found that one area where Tigris isn’t great is getting simple points for the locations of cities (it really just deals with polygons), but there is a maps package that has built in data for US cities. Lets bring in that data and add in the last layer of our map. In order to keep things from getting too crowded we’ll add a cutoff for cities that are under a certain size.</p>
 <pre class="r"><code>library(maps)
 cities_data = us.cities %&gt;% 
@@ -81,7 +198,7 @@ cities_data = us.cities %&gt;%
   
 my_map + 
   geom_text(color = &#39;black&#39;,data = cities_data ,check_overlap = TRUE ,aes(x = long, y = lat, label = fixed_name)) </code></pre>
-<p><img src="/post/Census_Maps_Part2_files/figure-html/cities-1.png" width="672" /></p>
+<p><img src="/posts/Census_Maps_Part2_files/figure-html/cities-1.png" width="672" /></p>
 <p>Wow…lets just take minute to recall our journey here. Nicely done!</p>
 <p><img src = '/img/buildMap1.gif'></p>
 </div>
@@ -173,10 +290,84 @@ my_map +
 <p>So lets give it a whirl: let’s start with New York City:</p>
 <pre class="r"><code>nyc = pull_data(&#39;NY&#39;,c(&#39;Bronx&#39;,&#39;New York&#39;,&#39;Queens&#39;,&#39;Kings&#39;))
 mapper(nyc, legend_position = &#39;top left&#39;)</code></pre>
-<p><img src="/post/Census_Maps_Part2_files/figure-html/nyc-1.png" width="672" /></p>
+<p><img src="/posts/Census_Maps_Part2_files/figure-html/nyc-1.png" width="672" /></p>
 <p>How about my hometown?</p>
 <pre class="r"><code>atx = pull_data(&#39;TX&#39;,c(&#39;Travis&#39;,&#39;Williamson&#39;,&#39;Hays&#39;,&#39;Caldwell&#39;,&#39;Bastrop&#39;))
 mapper(atx, 40000, legend_position = &#39;top left&#39;)</code></pre>
-<p><img src="/post/Census_Maps_Part2_files/figure-html/atx-1.png" width="672" /></p>
+<p><img src="/posts/Census_Maps_Part2_files/figure-html/atx-1.png" width="672" /></p>
 <p>I think we’ve done it. If you want to see maps for your own city or region, feel free to copy my functions and run them locally. If you find a way to improve on them <a href ='mailto:bartholomatt@gmail.com'> let me know!</a></p>
 </div>
+
+</article>
+
+    </div>
+</div>
+
+
+                
+<div id="sidebar" class="pure-u-1 pure-u-md-1-4 pure-u-sm-1">
+    <div class="pad">
+        <a name="about"></a>
+        <h3>About Me</h3>
+        <div style="text-align: center;">
+            <img src="/img/portrait.jpg" alt="Matt Bartholomew" class="pure-img" />
+            <p><em>Matt Bartholomew is a Data Scientist from Austin Texas</em></p>
+        </div>
+
+        <h3>Latest Articles</h3>
+        <div class="pure-menu pure-menu-open">
+            <ul class="pure-menu-list">
+                
+                <li class="pure-menu-item">
+                    <a href="/posts/census_maps_part2/" class="pure-menu-link">Making a Better Map Part 2: ggplot and Tigris<br>
+                        <small></small>
+                    </a>
+                </li>
+                
+                <li class="pure-menu-item">
+                    <a href="/posts/census_maps_part1/" class="pure-menu-link">Making a Better Map Part 1: Getting Data with TidyCensus<br>
+                        <small></small>
+                    </a>
+                </li>
+                
+            </ul>
+        </div>
+
+        <h3>Categories</h3>
+        <div style="text-align:center" class="tags">
+            
+            
+            <a href="/tags/r" class="pure-button"> r
+                <small>(2)</small></a>
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+        </div>
+    </div> 
+</div> 
+
+                
+            </div><div class="pure-g">
+	<footer class="pure-u-1 pure-u-md-1 pure-u-sm-1">
+		<p>This page and its contents are copyright &copy; 2020,
+			<a href="">Matt Bartholomew</a>.</p>
+		<p><a href="https://github.com/pravin/hugo-theme-prav">Theme Prav</a> by <a href="https://cto.me.uk">Pravin
+				Paratey</a></p>
+	</footer>
+
+	<script defer src="https://use.fontawesome.com/releases/v5.0.9/js/all.js"
+		integrity="sha384-8iPTk2s/jMVj81dnzb/iFR2sdA7u06vHJyyLlAd4snFpCl/SnyUjRrbdJsw1pGIl"
+		crossorigin="anonymous"></script>
+</div></div></body>
+</html>

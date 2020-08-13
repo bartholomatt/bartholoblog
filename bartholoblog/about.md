@@ -1,9 +1,11 @@
 ---
-author: "Matt Bartholomew"
-title: "About Me"
-date: "2020-08-08"
+author: "Pravin Paratey"
+title: "About Theme Prav"
+date: "2019-12-31"
 description: "A little more about this theme"
 tags: [
+    "theme",
+    "prav",
 ]
 ---
 
@@ -74,7 +76,7 @@ This is an example of the configuration file.
 {{< highlight toml >}}
 baseURL = "https://cto.me.uk/"
 languageCode = "en-gb"
-title = "Bartholoblog"
+title = "Hugo Theme - Prav"
 theme = "prav"
 
 pygmentsCodeFences = "true"
@@ -85,9 +87,9 @@ pygmentsStyle = "perldoc"
 
 # Below settings are used throughout the theme. Please update
 [params]
-  title = "Bartholoblog"
+  title = "Hugo Theme - Prav"
   tagline = "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
-  author = "Matt Bartholomew"
+  author = "Pravin Paratey"
 
 [social]
   email = "mailto:pravin@paratey.com"
