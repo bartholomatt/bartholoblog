@@ -138,9 +138,9 @@
 <pre class="r"><code>ggplot(data = bay_area_housing) + 
   geom_sf(color = NA, aes(geometry = geometry, fill = ratio_over_1)) </code></pre>
 <p><img src="/posts/Census_Maps_Part2_files/figure-html/mapOne-1.png" width="672" /></p>
-<p>It’s not pretty. At all. And it’s nothing like the map we are trying to replicate. In no particular order, if we want to replicate the map from the NYT, we’re going to need:
+<p>It’s not pretty. At all. And it’s nothing like the map we are trying to replicate. In no particular order, if we want to recreate the map from the NYT, we’re going to need: <br>
 1) Roads <br>
-2) The landmass outside of our chosen area. <br>
+2) The landmass outside of our chosen area <br>
 3) City Names <br>
 4) A better color palette <br>
 and as a matter of personal preference <br>
@@ -159,7 +159,7 @@ roads_data = primary_secondary_roads(my_state) %&gt;%
   filter(RTTYP %in% c(&#39;U&#39;,&#39;S&#39;,&#39;I&#39;)) #this will limit the roads to just highways. 
 landmass_data = counties(cb = TRUE, state = my_state)
 water_data = area_water(my_state,my_county)</code></pre>
-<p>Let’s see what we can muster now with these supporting layers. Note that moving my data arguments into each individual geom_sf() call since we’re pulling from more than one data frame. Also since these layers will stack on top of eachother, the order that we feed them into ggplot is very important.</p>
+<p>Let’s see what we can muster now with these supporting layers. Note that I’m moving my data arguments into each individual geom_sf() call since we’re pulling from more than one data frame. Also since these layers will stack on top of eachother, the order that we feed them into ggplot is very important.</p>
 <pre class="r"><code>my_map = ggplot() +
   theme_void()  + #whiteout
   geom_sf(data = landmass_data, fill = &#39;#e6e6e6&#39;, color = NA,aes(geometry = geometry)) + #grey landmass
@@ -173,7 +173,10 @@ my_map</code></pre>
 <p><img src="/posts/Census_Maps_Part2_files/figure-html/tigris_map-1.png" width="672" /></p>
 <p>Crap. We’ve got what’s probably a pretty decent map, but it’s for the whole state. This kind of makes sense actually, since some of our calls to Tigris only specify a state and not a county, and ggplot doesn’t know that we only care to frame the parts of the data that are included in our bay_area_housing layer.
 Luckily there is a way around this. Using the coord_sf() function we can set x and y limits based on our original dataframe. This is kind of tricky since shapefiles don’t behave the way a lot of other R objects do but we can extract them like so using the st_bbox() function contained in the sf library.</p>
-<pre class="r"><code>limits = st_bbox(bay_area_housing$geometry)</code></pre>
+<pre class="r"><code>limits = st_bbox(bay_area_housing$geometry)
+limits</code></pre>
+<pre><code>##       xmin       ymin       xmax       ymax 
+## -123.01392   36.85065 -121.20823   38.09988</code></pre>
 <p>Now lets try again with our new limited frame.</p>
 <pre class="r"><code>my_map = my_map + 
   coord_sf(xlim = c(as.numeric(limits$xmin),as.numeric(limits$xmax)), 

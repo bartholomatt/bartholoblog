@@ -20,7 +20,7 @@ census_api_key('4a0c9141ee3b2dd6e3920c7d11237a1151200029')
 
 
 
-acs = load_variables(2018, 'acs5', cache = TRUE) 
+acs = load_variables(2018, 'acs5', cache = TRUE)
 
 pull_data = function(my_state, my_county){
   
@@ -84,9 +84,9 @@ ggplot(data = bay_area_housing) +
 
 ```
 
-It's not pretty. At all. And it's nothing like the map we are trying to replicate. In no particular order, if we want to replicate the map from the NYT, we're going to need: 
+It's not pretty. At all. And it's nothing like the map we are trying to replicate. In no particular order, if we want to recreate the map from the NYT, we're going to need: <br>
 1) Roads <br>
-2) The landmass outside of our chosen area. <br>
+2) The landmass outside of our chosen area <br>
 3) City Names <br>
 4) A better color palette <br>
 and as a matter of personal preference <br>
@@ -110,7 +110,7 @@ water_data = area_water(my_state,my_county)
 
 ```
 
-Let's see what we can muster now with these supporting layers. Note that moving my data arguments into each individual geom_sf() call since we're pulling from more than one data frame. Also since these layers will stack on top of eachother, the order that we feed them into ggplot is very important. 
+Let's see what we can muster now with these supporting layers. Note that I'm moving my data arguments into each individual geom_sf() call since we're pulling from more than one data frame. Also since these layers will stack on top of eachother, the order that we feed them into ggplot is very important. 
 
 ```{r tigris_map}
 my_map = ggplot() +
@@ -131,6 +131,7 @@ Luckily there is a way around this. Using the coord_sf() function we can set x a
 
 ```{r coord_sf}
 limits = st_bbox(bay_area_housing$geometry)
+limits
 ```
 
 Now lets try again with our new limited frame. 
@@ -181,7 +182,7 @@ Wow...lets just take minute to recall our journey here. Nicely done!
 
 Ok! We've recreated the original map. Remember though, one of the goals of this project was to be able to make a tool that we can use to create similar visualizations for ANYWHERE in the US. 
 
-Well...if we're gonna be running the same code several times over, this sounds like a job for a function. This next part is gonna involve a lot of code we've already gone over but the basic idea is to make two functions: one to pull the data we need to make the map and one to actually render it. First the data puller: This is going to let us grab our underlying info from the TidyCencus, Tigris and maps package.
+Well...if we're gonna be running the same code several times over, this sounds like a job for a function. This next part is gonna involve a lot of code we've already gone over but the basic idea is to make two functions: one to pull the data we need to make the map and one to actually render it. First the data puller: This is going to let us grab our underlying info from the TidyCensus, Tigris and Maps package.
 ```{r puller}
 pull_data = function(my_state, my_county){
   
@@ -229,7 +230,7 @@ pull_data = function(my_state, my_county){
 
 ```
 
-Second is the actual mapper. I've got two extra parameters in here to make this more flexible for various geographies. One allows you to specify a cutoff for which cities will be included on the map. Another lets you specify which corner of the map to stick the legend. 
+Second is the actual mapper. I've got two extra parameters in here to make this more flexible for various geographies. One allows you to specify a population cutoff for which cities will be included on the map. Another lets you specify which corner of the map to stick the legend. 
 
 ```{r mapper}
 mapper = function(input_data, city_size_floor = 100000000, legend_position = 'bottom left'){ #accepts list object from pull_data function
