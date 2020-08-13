@@ -1,4 +1,4 @@
-baseURL = "https://bartholoblog.net/"
+baseURL = "https://bartholomatt.net/"
 languageCode = "en-gb"
 title = "Bartholoblog"
 theme = "hugo-theme-prav"
@@ -16,7 +16,7 @@ pygmentsStyle = "perldoc"
 # Please update!
 [params]
     title = "Bartholoblog"
-    tagline = "Under Construction"
+    tagline = ""
     author = "Matt Bartholomew"
     authorImgPath = "/img/portrait.jpg"
     authorBlurb = "Matt Bartholomew is a Data Scientist from Austin Texas"
