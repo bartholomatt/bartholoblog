@@ -93,4 +93,4 @@ head(fill_data)
 
 ```
 
-Now we've got a dataframe with one row for each census tract that contains a shapefile for the contours of the tract, plus a calculation of the percentage of housing units that have more than one occupant per room. We'll cover making the map using ggplot in <a href = '/posts/Census_Maps_Part2'>Part Two</a>.
+Now we've got a data frame with one row for each census tract that contains a shapefile for the contours of the tract, plus a calculation of the percentage of housing units that have more than one occupant per room. We'll cover making the map using ggplot in <a href = '/posts/Census_Maps_Part2'>Part Two</a>.
