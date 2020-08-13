@@ -141,8 +141,7 @@
 2) The landmass outside of our chosen area <br>
 3) City Names <br>
 4) A better color palette <br>
-and as a matter of personal preference <br>
-5) water. And that water should be blue!</p>
+5) Water. And that water should be blue!</p>
 <p>So how do we get all of that?</p>
 </div>
 <div id="enter-tigris" class="section level2">
@@ -208,7 +207,7 @@ my_map +
 <div id="we-hunger-for-more-maps" class="section level2">
 <h2>We Hunger for More Maps</h2>
 <p>Ok! We’ve recreated the original map. Remember though, one of the goals of this project was to be able to make a tool that we can use to create similar visualizations for ANYWHERE in the US.</p>
-<p>Well…if we’re gonna be running the same code several times over, this sounds like a job for a function. This next part is gonna involve a lot of code we’ve already gone over but the basic idea is to make two functions: one to pull the data we need to make the map and one to actually render it. First the data puller: This is going to let us grab our underlying info from the TidyCencus, Tigris and maps package.</p>
+<p>Well…if we’re gonna be running the same code several times over, this sounds like a job for a function. This next part is gonna involve a lot of code we’ve already gone over but the basic idea is to make two functions: one to pull the data we need to make the map and one to actually render it. First the data puller: This is going to let us grab our underlying info from the TidyCensus, Tigris and Maps package.</p>
 <pre class="r"><code>pull_data = function(my_state, my_county){
   
   acs = load_variables(2018, &#39;acs5&#39;, cache = TRUE) 
@@ -252,7 +251,7 @@ my_map +
   
   return(list(fill = fill_data, roads = roads_data, counties = counties_data, water =  water_data, cities = cities_data))
 }</code></pre>
-<p>Second is the actual mapper. I’ve got two extra parameters in here to make this more flexible for various geographies. One allows you to specify a cutoff for which cities will be included on the map. Another lets you specify which corner of the map to stick the legend.</p>
+<p>Second is the actual mapper. I’ve got two extra parameters in here to make this more flexible for various geographies. One allows you to specify a population cutoff for which cities will be included on the map. Another lets you specify which corner of the map to stick the legend.</p>
 <pre class="r"><code>mapper = function(input_data, city_size_floor = 100000000, legend_position = &#39;bottom left&#39;){ #accepts list object from pull_data function
   map_frame = input_data$fill
   limits = st_bbox(map_frame$geometry)

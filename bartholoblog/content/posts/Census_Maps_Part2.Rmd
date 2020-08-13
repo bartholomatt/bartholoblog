@@ -3,6 +3,7 @@ title: "Making a Better Map Part 2: ggplot and Tigris"
 author: "Matt Bartholomew"
 date: "2020-08-12"
 tags: ["R","Tigris","ggplot"]
+featuredImage: "/img/buildMap1.gif"
 output: html_document
 ---
 
@@ -89,8 +90,7 @@ It's not pretty. At all. And it's nothing like the map we are trying to replicat
 2) The landmass outside of our chosen area <br>
 3) City Names <br>
 4) A better color palette <br>
-and as a matter of personal preference <br>
-5) water. And that water should be blue! 
+5) Water. And that water should be blue! 
 
 So how do we get all of that? 
 
