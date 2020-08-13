@@ -3,7 +3,6 @@ title: "Making a Better Map Part 2: ggplot and Tigris"
 author: "Matt Bartholomew"
 date: "2020-08-12"
 tags: ["R","Tigris","ggplot"]
-featuredImage: "/img/buildMap1.gif"
 output: html_document
 ---
 
@@ -277,7 +276,7 @@ mapper = function(input_data, city_size_floor = 100000000, legend_position = 'bo
 
 So lets give it a whirl: let's start with New York City: 
 
-```{r nyc, message = FALSE, results = FALSE}
+```{r nyc, message = FALSE, results = FALSE, cache = TRUE}
 
 nyc = pull_data('NY',c('Bronx','New York','Queens','Kings'))
 mapper(nyc, legend_position = 'top left')
@@ -286,7 +285,7 @@ mapper(nyc, legend_position = 'top left')
 
 How about my hometown? 
 
-```{r atx, message = FALSE, results = FALSE}
+```{r atx, message = FALSE, results = FALSE, cache = TRUE}
 
 atx = pull_data('TX',c('Travis','Williamson','Hays','Caldwell','Bastrop'))
 mapper(atx, 40000, legend_position = 'top left')

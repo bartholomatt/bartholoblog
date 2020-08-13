@@ -3,7 +3,6 @@ title: "Making a Better Map Part 1: Getting Data with TidyCensus"
 author: "Matt Bartholomew"
 date: "2020-08-11"
 tags: ["R","TidyCensus"]
-featuredImage: "/img/sv.jpg"
 output: html_document
 ---
 
@@ -18,7 +17,7 @@ census_api_key('4a0c9141ee3b2dd6e3920c7d11237a1151200029')
 
 One of the many perks of having Data Science skills is being able to interact with statistics and graphs that you see in the news in a much deeper way. This weekend's New York Times <a href = 'https://www.nytimes.com/2020/08/01/business/economy/housing-overcrowding-coronavirus.html'> included </a> an interesting graphic on housing density and overcrowding in the Bay Area: 
 
-<img src = 'https://pbs.twimg.com/media/EeWdu85XsAE2NGZ?format=jpg&name=900x900'> 
+<img src = '/img/sv.jpg'> 
 
 My goal in this project is to 1) Recreate the original visualization using census data. 2) Build a function to generate similar maps for any region of the country. 
 
